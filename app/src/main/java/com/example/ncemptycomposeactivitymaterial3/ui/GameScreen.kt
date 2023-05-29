@@ -57,7 +57,8 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             onUserGuessChange = { gameViewModel.updateUserGuess(it) },
             onKeyboardDone = { gameViewModel.checkUserGuess() },
             userGuess = gameViewModel.userGuess,
-            isGuessWrong = gameUiState.isGuessedWordWrong
+            isGuessWrong = gameUiState.isGuessedWordWrong,
+            wordCount = gameUiState.currentWordCount
         )
         Column(
             modifier = Modifier
@@ -81,7 +82,7 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             }
 
             OutlinedButton(
-                onClick = { },
+                onClick = { gameViewModel.skipWord() },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
@@ -91,7 +92,13 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
             }
         }
 
-        GameStatus(score = 0, modifier = Modifier.padding(20.dp))
+        if (gameUiState.isGameOver) {
+            FinalScoreDialog(score = gameUiState.score, onPlayAgain = {
+                gameViewModel.resetGame()
+            })
+        }
+
+        GameStatus(score = gameUiState.score, modifier = Modifier.padding(20.dp))
     }
 }
 
@@ -116,7 +123,8 @@ fun GameLayout(
     onUserGuessChange: (String) -> Unit,
     onKeyboardDone: () -> Unit,
     userGuess: String,
-    isGuessWrong: Boolean
+    isGuessWrong: Boolean,
+    wordCount: Int
 ) {
     val mediumPadding = dimensionResource(R.dimen.padding_medium)
 
@@ -135,13 +143,15 @@ fun GameLayout(
                     .background(colorScheme.surfaceTint)
                     .padding(horizontal = 10.dp, vertical = 4.dp)
                     .align(alignment = Alignment.End),
-                text = currentScrambledWord,
+                text = stringResource(R.string.word_count, wordCount),
                 style = typography.titleMedium,
                 color = colorScheme.onPrimary
             )
             Text(
-                text = "scrambleun",
-                style = typography.displayMedium
+                text = currentScrambledWord,
+                fontSize = 45.sp,
+                style = typography.displayMedium,
+                modifier = modifier.align(Alignment.CenterHorizontally)
             )
             Text(
                 text = stringResource(R.string.instructions),
