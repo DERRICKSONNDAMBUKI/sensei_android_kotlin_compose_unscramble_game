@@ -9,6 +9,7 @@ import com.example.ncemptycomposeactivitymaterial3.ui.uiState.GameUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class GameViewModel : ViewModel() {
 
@@ -55,11 +56,21 @@ class GameViewModel : ViewModel() {
         _uiState.value = GameUiState(currentScrambledWord = pickRandomWordAndShuffle())
     }
 
-
-
-
     fun updateUserGuess(guessedWord: String) {
         userGuess = guessedWord
     }
 
+    fun checkUserGuess(){
+        if (userGuess.equals(currentWord, ignoreCase = true)){
+
+        }else{
+//            Reset user guess
+            updateUserGuess("")
+//            user's guess is wrong, show an error
+            _uiState.update { currentWord->
+                currentWord.copy(isGuessedWordWrong = true)
+            }
+
+        }
+    }
 }
