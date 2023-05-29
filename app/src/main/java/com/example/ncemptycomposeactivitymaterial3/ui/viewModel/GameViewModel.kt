@@ -1,5 +1,8 @@
 package com.example.ncemptycomposeactivitymaterial3.ui.viewModel
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.ncemptycomposeactivitymaterial3.data.allWords
 import com.example.ncemptycomposeactivitymaterial3.ui.uiState.GameUiState
@@ -7,26 +10,30 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class GameViewModel:ViewModel(){
+class GameViewModel : ViewModel() {
 
-    init {
-        resetGame()
-    }
+
+    private lateinit var currentWord: String
+    private val usedWords: MutableSet<String> = mutableSetOf()
+
+
     //    Game UI state
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
 
-    private lateinit var currentWord : String
+    var userGuess by mutableStateOf("")
 
-    private var usedWords:MutableSet<String> = mutableSetOf()
 
-    private fun pickRandomWordAndShuffle():String{
+
+
+    private fun pickRandomWordAndShuffle(): String {
         currentWord = allWords.random()
-        if (usedWords.contains(currentWord)){
-            return pickRandomWordAndShuffle()
-        }else{
+
+        return if (usedWords.contains(currentWord)) {
+            pickRandomWordAndShuffle()
+        } else {
             usedWords.add(currentWord)
-            return shuffleCurrentWord(currentWord)
+            shuffleCurrentWord(currentWord)
         }
     }
 
@@ -34,14 +41,25 @@ class GameViewModel:ViewModel(){
         val tempWord = word.toCharArray()
 //        Scramble the word
         tempWord.shuffle()
-        while (String(tempWord).equals(word)){
+        while (String(tempWord) == word) {
             tempWord.shuffle()
         }
         return String(tempWord)
     }
 
-    fun resetGame(){
+    init {
+        resetGame()
+    }
+    private fun resetGame() {
         usedWords.clear()
         _uiState.value = GameUiState(currentScrambledWord = pickRandomWordAndShuffle())
     }
+
+
+
+
+    fun updateUserGuess(guessedWord: String) {
+        userGuess = guessedWord
+    }
+
 }
